@@ -1,11 +1,13 @@
 {
-    "projects": {
-      "admin": {
-        "rootDirectory": "apps/admin"
+    "builds": [
+      {
+        "src": "apps/admin/package.json",
+        "use": "@vercel/node"
       },
-      "student": {
-        "rootDirectory": "apps/student"
+      {
+        "src": "apps/student/package.json",
+        "use": "@vercel/node"
       }
-    }
+    ]
   }
   
