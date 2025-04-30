@@ -1,0 +1,26 @@
+{
+  "name": "stemation-project",
+  "version": "1.0.0",
+  "private": true,
+  "workspaces": [
+    "apps/*"
+  ],
+  "scripts": {
+    "dev:student": "npm --workspace apps/student run dev",
+    "dev:admin": "npm --workspace apps/admin   run dev",
+    "build": "npm run build -ws",
+    "preview": "npm run preview -ws",
+    "lint": "npm run lint -ws",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "@supabase/supabase-js": "^2.49.4",
+    "@tailwindcss/vite": "^4.1.4",
+    "supabase": "^2.22.4",
+    "tailwindcss": "^4.1.4"
+  }
+}

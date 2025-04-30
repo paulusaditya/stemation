@@ -1,0 +1,11 @@
+{
+    "projects": {
+      "admin": {
+        "rootDirectory": "apps/admin"
+      },
+      "student": {
+        "rootDirectory": "apps/student"
+      }
+    }
+  }
+  
