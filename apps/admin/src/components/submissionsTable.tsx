@@ -1,33 +1,64 @@
 import { useState, useEffect } from 'react';
-import { supa } from '../lib/supa'; // Sesuaikan dengan path kamu
+import { supa } from '../lib/supa'; // Ensure the path to supa is correct
 
-// Komponen untuk menampilkan data
+// Interface for the data structure
+interface Submission {
+  id: number;
+  absen: string;
+  nama: string;
+  score: number;
+  created_at: string;
+  kelas: string;
+}
+
+// Interface for filters
+interface Filters {
+  nama: string;
+  kelas: string;
+}
+
 const SubmissionsTable = () => {
-  const [data, setData] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [filteredData, setFilteredData] = useState([]);
-  const [filters, setFilters] = useState({ nama: '', kelas: '' });
+  const [data, setData] = useState<Submission[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [filteredData, setFilteredData] = useState<Submission[]>([]);
+  const [filters, setFilters] = useState<Filters>({ nama: '', kelas: '' });
 
   useEffect(() => {
     const fetchData = async () => {
-      const { data } = await supa.from('submissions').select('*').order('created_at', { ascending: false });
-      setData(data);
-      setFilteredData(data); // Menyimpan data yang sudah difilter
-      setLoading(false);
+      try {
+        const { data: fetchedData, error } = await supa
+          .from('submissions')
+          .select('*')
+          .order('created_at', { ascending: false });
+        
+        if (error) {
+          console.error("Error fetching data: ", error.message);
+          setLoading(false);
+          return;
+        }
+        
+        setData(fetchedData || []); // Ensure data is not null
+        setFilteredData(fetchedData || []); // Initialize filteredData
+        setLoading(false);
+      } catch (err) {
+        console.error("Error during fetch: ", err);
+        setLoading(false);
+      }
     };
+
     fetchData();
   }, []);
 
-  const handleFilterChange = (e: React.ChangeEvent<HTMLInputElement>, field: string) => {
+  const handleFilterChange = (e: React.ChangeEvent<HTMLInputElement>, field: keyof Filters) => {
     const value = e.target.value;
     setFilters((prevFilters) => {
       const newFilters = { ...prevFilters, [field]: value };
-      filterData(newFilters);
+      filterData(newFilters); // Apply filter immediately
       return newFilters;
     });
   };
 
-  const filterData = (filters: any) => {
+  const filterData = (filters: Filters) => {
     const { nama, kelas } = filters;
     const filtered = data.filter((item) => {
       const matchesNama = nama ? item.nama.toLowerCase().includes(nama.toLowerCase()) : true;
@@ -37,7 +68,7 @@ const SubmissionsTable = () => {
     setFilteredData(filtered);
   };
 
-  const handleSort = (field: string) => {
+  const handleSort = (field: keyof Submission) => {
     const sortedData = [...filteredData].sort((a, b) => {
       if (a[field] < b[field]) return -1;
       if (a[field] > b[field]) return 1;
@@ -47,12 +78,20 @@ const SubmissionsTable = () => {
   };
 
   const handleDelete = async (id: number) => {
-    // Hapus data dari database menggunakan Supabase
-    await supa.from('submissions').delete().eq('id', id);
-    
-    // Hapus data dari state lokal
-    setData(data.filter((item) => item.id !== id));
-    setFilteredData(filteredData.filter((item) => item.id !== id));
+    try {
+      // Delete data from the database using Supabase
+      const { error } = await supa.from('submissions').delete().eq('id', id);
+      if (error) {
+        console.error("Error deleting data: ", error.message);
+        return;
+      }
+
+      // Remove data from local state
+      setData(data.filter((item) => item.id !== id));
+      setFilteredData(filteredData.filter((item) => item.id !== id));
+    } catch (err) {
+      console.error("Error during delete: ", err);
+    }
   };
 
   if (loading) return <div>Loading...</div>;
@@ -65,7 +104,14 @@ const SubmissionsTable = () => {
           type="text"
           placeholder="Filter Nama"
           value={filters.nama}
-          onChange={(e) => handleFilterChange(e, 'nama')} // Filter berdasarkan nama
+          onChange={(e) => handleFilterChange(e, 'nama')}
+          className="filter-input"
+        />
+        <input
+          type="text"
+          placeholder="Filter Kelas"
+          value={filters.kelas}
+          onChange={(e) => handleFilterChange(e, 'kelas')}
           className="filter-input"
         />
       </div>
@@ -76,19 +122,19 @@ const SubmissionsTable = () => {
             <th onClick={() => handleSort('nama')}>Nama</th>
             <th onClick={() => handleSort('score')}>Score</th>
             <th onClick={() => handleSort('created_at')}>Tanggal Pengajuan</th>
-            <th>Aksi</th> {/* Kolom untuk tombol delete */}
+            <th>Aksi</th>
           </tr>
         </thead>
         <tbody>
-          {filteredData.map((row, index) => (
-            <tr key={index} className="table-row">
+          {filteredData.map((row) => (
+            <tr key={row.id} className="table-row">
               <td>{row.absen}</td> {/* Menampilkan No Absen */}
-              <td>{row.nama}</td>     {/* Menampilkan Nama */}
-              <td>{row.score}</td>    {/* Menampilkan Score */}
+              <td>{row.nama}</td> {/* Menampilkan Nama */}
+              <td>{row.score}</td> {/* Menampilkan Score */}
               <td>{row.created_at}</td> {/* Menampilkan Tanggal Pengajuan */}
               <td>
                 <button
-                  onClick={() => handleDelete(row.id)} // Menambahkan aksi delete
+                  onClick={() => handleDelete(row.id)}
                   className="delete-button"
                 >
                   Delete
