@@ -4,7 +4,8 @@
       "src": "apps/admin/package.json",
       "use": "@vercel/static-build",
       "config": {
-        "distDir": "apps/admin/dist"
+        "distDir": "apps/admin/dist",
+        "buildCommand": "npm run vercel-build"
       }
     }
   ],
