@@ -1,18 +1,17 @@
 {
-    "builds": [
-      {
-        "src": "apps/admin/package.json",
-        "use": "@vercel/static-build",
-        "config": {
-          "distDir": "dist"
-        }
+  "builds": [
+    {
+      "src": "apps/admin/package.json",
+      "use": "@vercel/static-build",
+      "config": {
+        "distDir": "apps/admin/dist"
       }
-    ],
-    "routes": [
-      {
-        "src": "/(.*)",
-        "dest": "/apps/admin/$1"
-      }
-    ]
-  }
-  
+    }
+  ],
+  "routes": [
+    {
+      "src": "/(.*)",
+      "dest": "/index.html"
+    }
+  ]
+}
