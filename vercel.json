@@ -1,18 +1,9 @@
 {
+  "version": 2,
   "builds": [
-    {
-      "src": "apps/admin/package.json",
-      "use": "@vercel/static-build",
-      "config": {
-        "distDir": "apps/admin/dist",
-        "buildCommand": "npm run vercel-build"
-      }
-    }
+    { "src": "api/index.js", "use": "@vercel/node" }
   ],
   "routes": [
-    {
-      "src": "/(.*)",
-      "dest": "/index.html"
-    }
+    { "src": "/results", "dest": "api/index.js" }
   ]
 }
